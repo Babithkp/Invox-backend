@@ -32,3 +32,57 @@ model Item{
   gst Int
   company_id String
 }
+
+model Quote{
+  quote_id String @id @default(auto()) @map("_id") @db.ObjectId
+  quote_number String
+  quote_item String
+  total_amount Int
+}
+
+model Invoice{
+  invoice_id String @id @default(auto()) @map("_id") @db.ObjectId
+  invoice_number String
+  invoice_item String
+  payment_method String
+  total_amount Int
+}
+
+model Payment{
+  payment_id String @id @default(auto()) @map("_id") @db.ObjectId
+  invoice_id String
+  amount Int
+  paid_at DateTime
+}
+
+model Writeoff{
+  write_off_id String @id @default(auto()) @map("_id") @db.ObjectId
+  invoice_id String
+  amount Int
+  reason String
+}
+
+model Customer{
+  customer_id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  email String @unique
+  address String
+  mobile_number String
+  customer_gst String
+}
+
+model Expense{
+  expense_id String @id @default(auto()) @map("_id") @db.ObjectId
+  expense_name String
+  amount Int
+  expense_date String
+  created_at DateTime @default(now()) @map("_created_at")
+}
+
+model Settings{
+  company_id String @id @default(auto()) @map("_id") @db.ObjectId
+  company_name String
+  company_address String
+  company_gst String
+  account_details Json
+}
