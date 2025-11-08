@@ -5,14 +5,14 @@ vi.mock("../prismaClient.ts", () => {
   return {
     default: {
       user: {
-        findFirst: vi.fn(),
+         findFirst: vi.fn(),
         create: vi.fn(),
       },
       company: {
         findFirst: vi.fn(),
         create: vi.fn(),
         update: vi.fn(),
-        delete: vi.fn(),
+        delete: vi.fn(),  
       },
       item: {
         findFirst: vi.fn(),
