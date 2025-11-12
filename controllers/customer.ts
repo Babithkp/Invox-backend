@@ -1,0 +1,230 @@
+import type { Request, Response } from "express";
+import { z } from "zod";
+import prisma from "../src/prismaClient.js";
+import { 
+  customerParamsSchema, 
+  pageParamsSchema,
+  filterParamsSchema,
+  createCustomerSchema,
+  updateCustomerSchema
+} from "../schemas/customer.schema.js";
+import type { 
+  CustomerParams,
+  PageParams,
+  FilterParams,
+  CreateCustomerInput,
+  UpdateCustomerInput
+} from "../schemas/customer.schema.js";
+
+// GET /customer/:customer_id
+export const getCustomer = async (req: Request, res: Response) => {
+  try {
+    // Validate params with Zod
+    const paramsResult = customerParamsSchema.safeParse(req.params);
+    if (!paramsResult.success) {
+      const errors = paramsResult.error.issues.map(err => err.message).join(", ");
+      return res.status(400).json({ message: errors });
+    }
+
+    const { customer_id }: CustomerParams = paramsResult.data;
+
+    const customer = await prisma.customer.findFirst({ where: { customer_id } });
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    return res.status(200).json(customer);
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message || "Internal server error" });
+  }
+};
+
+// POST /customer/:customer_id
+export const createCustomer = async (req: Request, res: Response) => {
+  try {
+    // Validate params with Zod
+    const paramsResult = customerParamsSchema.safeParse(req.params);
+    if (!paramsResult.success) {
+      const errors = paramsResult.error.issues.map(err => err.message).join(", ");
+      return res.status(400).json({ message: errors });
+    }
+
+    // Validate body with Zod
+    const bodyResult = createCustomerSchema.safeParse(req.body);
+    if (!bodyResult.success) {
+      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
+      return res.status(400).json({ message: errors });
+    }
+
+    const { customer_id }: CustomerParams = paramsResult.data;
+    const { name, email, address, mobile_number, customer_gst }: CreateCustomerInput = bodyResult.data;
+
+    const existing = await prisma.customer.findFirst({ where: { customer_id } });
+    if (existing) {
+      return res.status(409).json({ message: "Customer already exists" });
+    }
+
+    // Check if email already exists
+    const existingEmail = await prisma.customer.findFirst({ where: { email } });
+    if (existingEmail) {
+      return res.status(409).json({ message: "Email already exists" });
+    }
+
+    await prisma.customer.create({
+      data: {
+        customer_id,
+        name,
+        email,
+        address,
+        mobile_number,
+        customer_gst,
+      },
+    });
+
+    return res.status(200).json({ message: "Customer created successfully" });
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message || "Internal server error" });
+  }
+};
+
+// PUT /customer/:customer_id
+export const updateCustomer = async (req: Request, res: Response) => {
+  try {
+    // Validate params with Zod
+    const paramsResult = customerParamsSchema.safeParse(req.params);
+    if (!paramsResult.success) {
+      const errors = paramsResult.error.issues.map(err => err.message).join(", ");
+      return res.status(400).json({ message: errors });
+    }
+
+    // Validate body with Zod
+    const bodyResult = updateCustomerSchema.safeParse(req.body || {});
+    if (!bodyResult.success) {
+      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
+      return res.status(400).json({ message: errors });
+    }
+
+    const { customer_id }: CustomerParams = paramsResult.data;
+    const updateData: UpdateCustomerInput = bodyResult.data;
+
+    const existing = await prisma.customer.findFirst({ where: { customer_id } });
+    if (!existing) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    // Filter out undefined values for update
+    const filteredUpdateData: any = {};
+    if (updateData.name !== undefined) filteredUpdateData.name = updateData.name;
+    if (updateData.email !== undefined) filteredUpdateData.email = updateData.email;
+    if (updateData.address !== undefined) filteredUpdateData.address = updateData.address;
+    if (updateData.mobile_number !== undefined) filteredUpdateData.mobile_number = updateData.mobile_number;
+    if (updateData.customer_gst !== undefined) filteredUpdateData.customer_gst = updateData.customer_gst;
+
+    await prisma.customer.update({
+      where: { customer_id },
+      data: filteredUpdateData,
+    });
+
+    return res.status(200).json({ message: "Customer updated successfully" });
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message || "Internal server error" });
+  }
+};
+
+// DELETE /customer/:customer_id
+export const deleteCustomer = async (req: Request, res: Response) => {
+  try {
+    // Validate params with Zod
+    const paramsResult = customerParamsSchema.safeParse(req.params);
+    if (!paramsResult.success) {
+      const errors = paramsResult.error.issues.map(err => err.message).join(", ");
+      return res.status(400).json({ message: errors });
+    }
+
+    const { customer_id }: CustomerParams = paramsResult.data;
+
+    const existing = await prisma.customer.findFirst({ where: { customer_id } });
+    if (!existing) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    await prisma.customer.delete({ where: { customer_id } });
+
+    return res.status(200).json({ message: "Customer deleted successfully" });
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message || "Internal server error" });
+  }
+};
+
+// GET /customerPage/:page
+export const getCustomerPage = async (req: Request, res: Response) => {
+  try {
+    // Validate params with Zod
+    const paramsResult = pageParamsSchema.safeParse(req.params);
+    if (!paramsResult.success) {
+      const errors = paramsResult.error.issues.map(err => err.message).join(", ");
+      return res.status(400).json({ message: errors });
+    }
+
+    const { page }: PageParams = paramsResult.data;
+    const pageNum = parseInt(page, 10);
+
+    const pageSize = 10;
+    const skip = (pageNum - 1) * pageSize;
+
+    let totalItems = 0;
+    try {
+      totalItems = await prisma.customer.count();
+    } catch {
+      const maybeAll = await prisma.customer.findMany();
+      totalItems = maybeAll ? maybeAll.length : 0;
+    }
+
+    const customers = await prisma.customer.findMany({
+      skip,
+      take: pageSize,
+    });
+
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+    return res.status(200).json({
+      totalItems,
+      totalPages,
+      currentPage: pageNum,
+      data: customers,
+    });
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message || "Internal server error" });
+  }
+};
+
+// GET /filterCustomer/:text
+export const filterCustomer = async (req: Request, res: Response) => {
+  try {
+    // Validate params with Zod
+    const paramsResult = filterParamsSchema.safeParse(req.params);
+    if (!paramsResult.success) {
+      const errors = paramsResult.error.issues.map(err => err.message).join(", ");
+      return res.status(400).json({ message: errors });
+    }
+
+    const { text }: FilterParams = paramsResult.data;
+
+    const customers = await prisma.customer.findMany();
+
+    const query = text.toLowerCase().trim();
+    const filtered = customers.filter((customer) => {
+      const name = (customer.name || "").toLowerCase();
+      const email = (customer.email || "").toLowerCase();
+      const address = (customer.address || "").toLowerCase();
+      const mobile = (customer.mobile_number || "").toLowerCase();
+      const gst = (customer.customer_gst || "").toLowerCase();
+      return name.includes(query) || email.includes(query) || address.includes(query) || 
+             mobile.includes(query) || gst.includes(query);
+    });
+
+    return res.status(200).json(filtered);
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message || "Internal server error" });
+  }
+};
