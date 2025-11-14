@@ -1,20 +1,16 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import prisma from "../src/prismaClient.js";
+import prisma from "../src/prismaClient";
 import { 
   itemParamsSchema, 
-  pageParamsSchema,
-  filterParamsSchema,
   createItemSchema,
   updateItemSchema
-} from "../schemas/item.schema.js";
+} from "../schemas/item.schema";
 import type { 
   ItemParams,
-  PageParams,
-  FilterParams,
   CreateItemInput,
   UpdateItemInput
-} from "../schemas/item.schema.js";
+} from "../schemas/item.schema";
 
 // GET /item/:item_id
 export const getItem = async (req: Request, res: Response) => {

@@ -1,20 +1,20 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import prisma from "../src/prismaClient.js";
+import prisma from "../src/prismaClient";
 import { 
   userParamsSchema, 
   pageParamsSchema,
   filterParamsSchema,
   createUserSchema,
   updateUserSchema
-} from "../schemas/user.schema.js";
+} from "../schemas/user.schema";
 import type { 
   UserParams,
   PageParams,
   FilterParams,
   CreateUserInput,
   UpdateUserInput
-} from "../schemas/user.schema.js";
+} from "../schemas/user.schema";
 
 // GET /user/:user_id
 export const getUser = async (req: Request, res: Response) => {

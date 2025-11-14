@@ -5,6 +5,21 @@ export const invoiceParamsSchema = z.object({
   invoice_id: z.string().min(1, "Invoice ID is required")
 });
 
+// Invoice body schemas
+export const createInvoiceSchema = z.object({
+  invoice_number: z.string().min(1, "Invoice number is required"),
+  invoice_item: z.string().min(1, "Invoice item is required"),
+  payment_method: z.string().min(1, "Payment method is required"),
+  total_amount: z.number().int().min(0, "Total amount must be non-negative")
+});
+
+export const updateInvoiceSchema = z.object({
+  invoice_number: z.string().min(1, "Invoice number is required").optional(),
+  invoice_item: z.string().min(1, "Invoice item is required").optional(),
+  payment_method: z.string().min(1, "Payment method is required").optional(),
+  total_amount: z.number().int().min(0, "Total amount must be non-negative").optional()
+});
+
 // Page query schema
 export const pageQuerySchema = z.object({
   page: z.string().refine((val) => {
@@ -20,21 +35,6 @@ export const pageQuerySchema = z.object({
 // Filter params schema
 export const filterParamsSchema = z.object({
   text: z.string().min(1, "Search text is required")
-});
-
-// Invoice body schemas
-export const createInvoiceSchema = z.object({
-  invoice_number: z.string().min(1, "Invoice number is required"),
-  invoice_item: z.string().min(1, "Invoice item is required"),
-  payment_method: z.string().min(1, "Payment method is required"),
-  total_amount: z.number().min(0, "Total amount must be non-negative")
-});
-
-export const updateInvoiceSchema = z.object({
-  invoice_number: z.string().min(1, "Invoice number is required").optional(),
-  invoice_item: z.string().min(1, "Invoice item is required").optional(),
-  payment_method: z.string().min(1, "Payment method is required").optional(),
-  total_amount: z.number().min(0, "Total amount must be non-negative").optional()
 });
 
 // Type exports

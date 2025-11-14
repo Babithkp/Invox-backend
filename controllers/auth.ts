@@ -1,16 +1,16 @@
 // controllers/auth.controller.ts
 import type { Request, Response } from "express";
 import { z } from "zod";
-import prisma from "../src/prismaClient.js"; // <- IMPORTANT (not "../src/index.js")
+import prisma from "../src/prismaClient"; // <- IMPORTANT (not "../src/index.js")
 import jwt from "jsonwebtoken";
 import { 
   registerSchema, 
   loginSchema
-} from "../schemas/auth.schema.js";
+} from "../schemas/auth.schema";
 import type { 
   RegisterInput,
   LoginInput
-} from "../schemas/auth.schema.js";
+} from "../schemas/auth.schema";
 
 console.log("DEBUG controller create:", typeof prisma?.company?.create);
 console.log("DEBUG controller update:", typeof prisma?.company?.update);

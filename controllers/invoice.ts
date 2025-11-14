@@ -1,20 +1,20 @@
 import type { Request, Response, RequestHandler } from "express";
 import { z } from "zod";
-import prisma from "../src/prismaClient.js";
+import prisma from "../src/prismaClient";
 import { 
   invoiceParamsSchema, 
-  pageQuerySchema, 
+  pageQuerySchema,
   filterParamsSchema,
   createInvoiceSchema,
   updateInvoiceSchema
-} from "../schemas/invoice.schema.js";
+} from "../schemas/invoice.schema";
 import type { 
   InvoiceParams,
   PageQuery,
   FilterParams,
   CreateInvoiceInput,
   UpdateInvoiceInput
-} from "../schemas/invoice.schema.js";
+} from "../schemas/invoice.schema";
 
 type Invoice = {
   invoice_id: string;
@@ -62,8 +62,7 @@ export const createInvoice = async (req: Request, res: Response) => {
     // Validate body with Zod
     const bodyResult = createInvoiceSchema.safeParse(req.body);
     if (!bodyResult.success) {
-      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
-      return res.status(400).json({ message: errors });
+      return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
     const { invoice_id }: InvoiceParams = paramsResult.data;
@@ -101,11 +100,10 @@ export const updateInvoice = async (req: Request, res: Response) => {
       return res.status(400).json({ message: errors });
     }
 
-    // Validate body with Zod
-    const bodyResult = updateInvoiceSchema.safeParse(req.body);
-    if (!bodyResult.success) {
-      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
-      return res.status(400).json({ message: errors });
+    // For update, allow empty body
+    const bodyResult = updateInvoiceSchema.safeParse(req.body || {});
+    if (!bodyResult.success && Object.keys(req.body || {}).length > 0) {
+      return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
     const { invoice_id }: InvoiceParams = paramsResult.data;

@@ -1,20 +1,20 @@
 import type { Request, Response, RequestHandler } from "express";
 import { z } from "zod";
-import prisma from "../src/prismaClient.js";
+import prisma from "../src/prismaClient";
 import { 
   quoteParamsSchema, 
-  pageQuerySchema, 
+  pageQuerySchema,
   filterParamsSchema,
   createQuoteSchema,
   updateQuoteSchema
-} from "../schemas/quote.schema.js";
+} from "../schemas/quote.schema";
 import type { 
   QuoteParams,
   PageQuery,
   FilterParams,
   CreateQuoteInput,
   UpdateQuoteInput
-} from "../schemas/quote.schema.js";
+} from "../schemas/quote.schema";
 
 type Quote = {
   quote_id: string;
@@ -61,8 +61,7 @@ export const createQuote = async (req: Request, res: Response) => {
     // Validate body with Zod
     const bodyResult = createQuoteSchema.safeParse(req.body);
     if (!bodyResult.success) {
-      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
-      return res.status(400).json({ message: errors });
+      return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
     const { quote_id }: QuoteParams = paramsResult.data;
@@ -100,11 +99,10 @@ export const updateQuote = async (req: Request, res: Response) => {
       return res.status(400).json({ message: errors });
     }
 
-    // Validate body with Zod
-    const bodyResult = updateQuoteSchema.safeParse(req.body);
-    if (!bodyResult.success) {
-      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
-      return res.status(400).json({ message: errors });
+    // For update, allow empty body
+    const bodyResult = updateQuoteSchema.safeParse(req.body || {});
+    if (!bodyResult.success && Object.keys(req.body || {}).length > 0) {
+      return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
     const { quote_id }: QuoteParams = paramsResult.data;

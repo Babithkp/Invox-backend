@@ -1,16 +1,16 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import prisma from '../src/prismaClient.js';
+import prisma from '../src/prismaClient';
 import { 
   companyParamsSchema, 
   createCompanySchema,
   updateCompanySchema
-} from "../schemas/company.schema.js";
+} from "../schemas/company.schema";
 import type { 
   CompanyParams,
   CreateCompanyInput,
   UpdateCompanyInput
-} from "../schemas/company.schema.js";
+} from "../schemas/company.schema";
 
 export const getCompany = async (req: Request, res: Response) => {
   try {

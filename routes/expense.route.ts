@@ -12,22 +12,27 @@ const router = express.Router();
 
 // Base routes that require expense_id
 router.get("/", (req, res) =>
-  res.status(400).json({ message: "Please provide valid expense_id" })
+  res.status(400).json({ message: "Invalid request or bad input" })
 );
 router.post("/", (req, res) =>
-  res.status(400).json({ message: "Please provide valid expense_id" })
+  res.status(400).json({ message: "Invalid request or bad input" })
 );
 router.put("/", (req, res) =>
-  res.status(400).json({ message: "Please provide valid expense_id" })
+  res.status(400).json({ message: "Invalid request or bad input" })
 );
 router.delete("/", (req, res) =>
-  res.status(400).json({ message: "Please provide valid expense_id" })
+  res.status(400).json({ message: "Invalid request or bad input" })
 );
 
 // Pagination and filtering routes
-router.get("/page", (req, res) =>
-  res.status(400).json({ message: "Please provide valid page" })
-);
+router.get("/page", (req, res, next) => {
+  const { page, limit } = req.query;
+  if (!page || !limit) {
+    return res.status(400).json({ message: "Invalid request or bad parameters" });
+  }
+  next();
+}, getExpensePage);
+
 router.get("/page/:page", getExpensePage);
 
 router.get("/filter", (req, res) =>
