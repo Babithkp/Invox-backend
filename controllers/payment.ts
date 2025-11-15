@@ -1,20 +1,20 @@
 import type { Request, Response, RequestHandler } from "express";
 import { z } from "zod";
-import prisma from "../src/prismaClient";
-import { 
-  paymentParamsSchema, 
-  pageQuerySchema, 
+import prisma from "../src/prismaClient.js";
+import {
+  paymentParamsSchema,
+  pageQuerySchema,
   filterParamsSchema,
   createPaymentSchema,
   updatePaymentSchema
-} from "../schemas/payment.schema";
-import type { 
+} from "../schemas/payment.schema.js";
+import type {
   PaymentParams,
   PageQuery,
   FilterParams,
   CreatePaymentInput,
   UpdatePaymentInput
-} from "../schemas/payment.schema";
+} from "../schemas/payment.schema.js";
 
 type Payment = {
   payment_id: string;
@@ -95,9 +95,14 @@ export const updatePayment = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
-    // For update, allow empty body
-    const bodyResult = updatePaymentSchema.safeParse(req.body || {});
-    if (!bodyResult.success && Object.keys(req.body || {}).length > 0) {
+    // Check if body is empty for PUT
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "Invalid request or bad input" });
+    }
+
+    // Validate body with Zod
+    const bodyResult = updatePaymentSchema.safeParse(req.body);
+    if (!bodyResult.success) {
       return res.status(400).json({ message: "Invalid request or bad input" });
     }
 

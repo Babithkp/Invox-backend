@@ -1,16 +1,16 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import prisma from "../src/prismaClient";
+import prisma from "../src/prismaClient.js";
 import { 
   settingsParamsSchema, 
   createSettingsSchema,
   updateSettingsSchema
-} from "../schemas/settings.schema";
+} from "../schemas/settings.schema.js";
 import type { 
   SettingsParams,
   CreateSettingsInput,
   UpdateSettingsInput
-} from "../schemas/settings.schema";
+} from "../schemas/settings.schema.js";
 
 // GET /settings/company
 export const getCompanySettings = async (req: Request, res: Response) => {
@@ -85,9 +85,14 @@ export const updateCompanySettings = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
-    // For update, allow empty body
-    const bodyResult = updateSettingsSchema.safeParse(req.body || {});
-    if (!bodyResult.success && Object.keys(req.body || {}).length > 0) {
+    // Check if body is empty for PUT
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "Invalid request or bad input" });
+    }
+
+    // Validate body with Zod
+    const bodyResult = updateSettingsSchema.safeParse(req.body);
+    if (!bodyResult.success) {
       return res.status(400).json({ message: "Invalid request or bad input" });
     }
 

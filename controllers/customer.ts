@@ -1,16 +1,20 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import prisma from "../src/prismaClient";
+import prisma from "../src/prismaClient.js";
 import { 
   customerParamsSchema, 
+  pageParamsSchema,
+  filterParamsSchema,
   createCustomerSchema,
   updateCustomerSchema
-} from "../schemas/customer.schema";
+} from "../schemas/customer.schema.js";
 import type { 
   CustomerParams,
+  PageParams,
+  FilterParams,
   CreateCustomerInput,
   UpdateCustomerInput
-} from "../schemas/customer.schema";
+} from "../schemas/customer.schema.js";
 
 // GET /customer/:customer_id
 export const getCustomer = async (req: Request, res: Response) => {
@@ -92,9 +96,14 @@ export const updateCustomer = async (req: Request, res: Response) => {
       return res.status(400).json({ message: errors });
     }
 
-    // For update, allow empty body
-    const bodyResult = updateCustomerSchema.safeParse(req.body || {});
-    if (!bodyResult.success && Object.keys(req.body || {}).length > 0) {
+    // Check if body is empty for PUT
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "Invalid request or bad input" });
+    }
+
+    // Validate body with Zod
+    const bodyResult = updateCustomerSchema.safeParse(req.body);
+    if (!bodyResult.success) {
       return res.status(400).json({ message: "Invalid request or bad input" });
     }
 

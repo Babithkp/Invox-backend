@@ -1,15 +1,15 @@
 import express from "express";
-import authRoutes from "./auth.route";
-import userRoutes from "./user.route";
-import companyRoutes from "./company.route";
-import customerRoutes from "./customer.route";
-import expenseRoutes from "./expense.route";
-import itemRoutes from "./item.route";
-import quoteRoutes from "./quote.route";
-import invoiceRoutes from "./invoice.route";
-import paymentRoutes from "./payment.route";
-import writeoffRoutes from "./writeoff.route";
-import settingsRoutes from "./settings.route";
+import authRoutes from "./auth.route.js";
+import userRoutes from "./user.route.js";
+import companyRoutes from "./company.route.js";
+import customerRoutes from "./customer.route.js";
+import expenseRoutes from "./expense.route.js";
+import itemRoutes from "./item.route.js";
+import quoteRoutes from "./quote.route.js";
+import invoiceRoutes from "./invoice.route.js";
+import paymentRoutes from "./payment.route.js";
+import writeoffRoutes from "./writeoff.route.js";
+import settingsRoutes from "./settings.route.js";
 
 const router = express.Router();
 
@@ -19,12 +19,12 @@ router.use("/user", userRoutes);
 router.use("/company", companyRoutes);
 
 // Import controller functions for direct calls
-import { getItemPage, filterItem } from "../controllers/item";
-import { getQuotePage, filterQuote } from "../controllers/quote";
-import { getInvoicePage, filterInvoice } from "../controllers/invoice";
-import { getPaymentPage, filterPayment } from "../controllers/payment";
-import { getCustomerPage, filterCustomer } from "../controllers/customer";
-import { getExpensePage, filterExpense } from "../controllers/expense";
+import { getItemPage, filterItem } from "../controllers/item.js";
+import { getQuotePage, filterQuote } from "../controllers/quote.js";
+import { getInvoicePage, filterInvoice } from "../controllers/invoice.js";
+import { getPaymentPage, filterPayment } from "../controllers/payment.js";
+import { getCustomerPage, filterCustomer } from "../controllers/customer.js";
+import { getExpensePage, filterExpense } from "../controllers/expense.js";
 
 // Item page and filter routes with specific handlers
 router.get("/itemPage", (req, res) =>
@@ -85,17 +85,13 @@ router.get("/customerPage", (req, res) => {
   if (!page || !limit) {
     return res.status(400).json({ message: "Invalid request or bad parameters" });
   }
-  req.url = '/page';
-  customerRoutes(req, res);
+  getCustomerPage(req, res);
 });
 
 router.get("/filterCustomer", (req, res) =>
   res.status(400).json({ message: "Invalid search text" })
 );
-router.get("/filterCustomer/:text", (req, res) => {
-  req.url = '/filter/' + req.params.text;
-  customerRoutes(req, res);
-});
+router.get("/filterCustomer/:text", filterCustomer);
 
 // Expense page and filter routes with specific handlers
 router.get("/expensePage", (req, res) => {
@@ -103,17 +99,13 @@ router.get("/expensePage", (req, res) => {
   if (!page || !limit) {
     return res.status(400).json({ message: "Invalid request or bad parameters" });
   }
-  req.url = '/page';
-  expenseRoutes(req, res);
+  getExpensePage(req, res);
 });
 
 router.get("/filterExpense", (req, res) =>
   res.status(400).json({ message: "Invalid search text" })
 );
-router.get("/filterExpense/:text", (req, res) => {
-  req.url = '/filter/' + req.params.text;
-  expenseRoutes(req, res);
-});
+router.get("/filterExpense/:text", filterExpense);
 
 // Mount the main route modules
 router.use("/item", itemRoutes);

@@ -1,20 +1,20 @@
 import type { Request, Response, RequestHandler } from "express";
 import { z } from "zod";
-import prisma from "../src/prismaClient";
+import prisma from "../src/prismaClient.js";
 import { 
   quoteParamsSchema, 
   pageQuerySchema,
   filterParamsSchema,
   createQuoteSchema,
   updateQuoteSchema
-} from "../schemas/quote.schema";
+} from "../schemas/quote.schema.js";
 import type { 
   QuoteParams,
   PageQuery,
   FilterParams,
   CreateQuoteInput,
   UpdateQuoteInput
-} from "../schemas/quote.schema";
+} from "../schemas/quote.schema.js";
 
 type Quote = {
   quote_id: string;
@@ -99,9 +99,14 @@ export const updateQuote = async (req: Request, res: Response) => {
       return res.status(400).json({ message: errors });
     }
 
-    // For update, allow empty body
-    const bodyResult = updateQuoteSchema.safeParse(req.body || {});
-    if (!bodyResult.success && Object.keys(req.body || {}).length > 0) {
+    // Check if body is empty for PUT
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "Invalid request or bad input" });
+    }
+
+    // Validate body with Zod
+    const bodyResult = updateQuoteSchema.safeParse(req.body);
+    if (!bodyResult.success) {
       return res.status(400).json({ message: "Invalid request or bad input" });
     }
 

@@ -10,11 +10,14 @@ import {
 const router = express.Router();
 
 // Company settings routes
-router.get("/company", getCompanySettings);
+router.get("/company", (req, res) => {
+  // Check if the URL ends with a trailing slash
+  if (req.originalUrl.endsWith('/')) {
+    return res.status(400).json({ message: "Invalid request or bad input" });
+  }
+  return getCompanySettings(req, res);
+});
 router.post("/company", createCompanySettings);
-
-// Base routes that require company_id - these should redirect to the main company route
-router.get("/company/", getCompanySettings);
 router.put("/company/", (req, res) =>
   res.status(400).json({ message: "Invalid request or bad input" })
 );

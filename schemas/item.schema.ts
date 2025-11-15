@@ -24,7 +24,22 @@ export const updateItemSchema = z.object({
   company_id: z.string().min(1, "Company ID is required").optional()
 });
 
+// Page params schema
+export const pageParamsSchema = z.object({
+  page: z.string().refine((val) => {
+    const num = parseInt(val, 10);
+    return !isNaN(num) && num >= 1;
+  }, "Page must be a valid positive number")
+});
+
+// Filter params schema
+export const filterParamsSchema = z.object({
+  test: z.string().min(1, "Search text is required")
+});
+
 // Type exports
 export type ItemParams = z.infer<typeof itemParamsSchema>;
+export type PageParams = z.infer<typeof pageParamsSchema>;
+export type FilterParams = z.infer<typeof filterParamsSchema>;
 export type CreateItemInput = z.infer<typeof createItemSchema>;
 export type UpdateItemInput = z.infer<typeof updateItemSchema>;

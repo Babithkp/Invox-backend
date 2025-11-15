@@ -1,16 +1,16 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import prisma from "../src/prismaClient";
+import prisma from "../src/prismaClient.js";
 import { 
   writeoffParamsSchema, 
   createWriteoffSchema,
   updateWriteoffSchema
-} from "../schemas/writeoff.schema";
+} from "../schemas/writeoff.schema.js";
 import type { 
   WriteoffParams,
   CreateWriteoffInput,
   UpdateWriteoffInput
-} from "../schemas/writeoff.schema";
+} from "../schemas/writeoff.schema.js";
 
 // GET /writeoff/:write_off_id
 export const getWriteoff = async (req: Request, res: Response) => {
@@ -88,9 +88,14 @@ export const updateWriteoff = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
-    // For update, allow empty body
-    const bodyResult = updateWriteoffSchema.safeParse(req.body || {});
-    if (!bodyResult.success && Object.keys(req.body || {}).length > 0) {
+    // Check if body is empty for PUT
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "Invalid request or bad input" });
+    }
+
+    // Validate body with Zod
+    const bodyResult = updateWriteoffSchema.safeParse(req.body);
+    if (!bodyResult.success) {
       return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
