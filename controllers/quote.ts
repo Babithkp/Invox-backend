@@ -3,7 +3,7 @@ import { z } from "zod";
 import prisma from "../src/prismaClient.js";
 import { 
   quoteParamsSchema, 
-  pageQuerySchema, 
+  pageQuerySchema,
   filterParamsSchema,
   createQuoteSchema,
   updateQuoteSchema
@@ -61,8 +61,7 @@ export const createQuote = async (req: Request, res: Response) => {
     // Validate body with Zod
     const bodyResult = createQuoteSchema.safeParse(req.body);
     if (!bodyResult.success) {
-      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
-      return res.status(400).json({ message: errors });
+      return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
     const { quote_id }: QuoteParams = paramsResult.data;
@@ -100,11 +99,15 @@ export const updateQuote = async (req: Request, res: Response) => {
       return res.status(400).json({ message: errors });
     }
 
+    // Check if body is empty for PUT
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "Invalid request or bad input" });
+    }
+
     // Validate body with Zod
     const bodyResult = updateQuoteSchema.safeParse(req.body);
     if (!bodyResult.success) {
-      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
-      return res.status(400).json({ message: errors });
+      return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
     const { quote_id }: QuoteParams = paramsResult.data;

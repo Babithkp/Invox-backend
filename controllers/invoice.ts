@@ -3,7 +3,7 @@ import { z } from "zod";
 import prisma from "../src/prismaClient.js";
 import { 
   invoiceParamsSchema, 
-  pageQuerySchema, 
+  pageQuerySchema,
   filterParamsSchema,
   createInvoiceSchema,
   updateInvoiceSchema
@@ -62,8 +62,7 @@ export const createInvoice = async (req: Request, res: Response) => {
     // Validate body with Zod
     const bodyResult = createInvoiceSchema.safeParse(req.body);
     if (!bodyResult.success) {
-      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
-      return res.status(400).json({ message: errors });
+      return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
     const { invoice_id }: InvoiceParams = paramsResult.data;
@@ -101,11 +100,15 @@ export const updateInvoice = async (req: Request, res: Response) => {
       return res.status(400).json({ message: errors });
     }
 
+    // Check if body is empty for PUT
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "Invalid request or bad input" });
+    }
+
     // Validate body with Zod
     const bodyResult = updateInvoiceSchema.safeParse(req.body);
     if (!bodyResult.success) {
-      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
-      return res.status(400).json({ message: errors });
+      return res.status(400).json({ message: "Invalid request or bad input" });
     }
 
     const { invoice_id }: InvoiceParams = paramsResult.data;

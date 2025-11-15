@@ -5,6 +5,19 @@ export const quoteParamsSchema = z.object({
   quote_id: z.string().min(1, "Quote ID is required")
 });
 
+// Quote body schemas
+export const createQuoteSchema = z.object({
+  quote_number: z.string().min(1, "Quote number is required"),
+  quote_item: z.string().min(1, "Quote item is required"),
+  total_amount: z.number().int().min(0, "Total amount must be non-negative")
+});
+
+export const updateQuoteSchema = z.object({
+  quote_number: z.string().min(1, "Quote number is required").optional(),
+  quote_item: z.string().min(1, "Quote item is required").optional(),
+  total_amount: z.number().int().min(0, "Total amount must be non-negative").optional()
+});
+
 // Page query schema
 export const pageQuerySchema = z.object({
   page: z.string().refine((val) => {
@@ -20,19 +33,6 @@ export const pageQuerySchema = z.object({
 // Filter params schema
 export const filterParamsSchema = z.object({
   text: z.string().min(1, "Search text is required")
-});
-
-// Quote body schemas
-export const createQuoteSchema = z.object({
-  quote_number: z.string().min(1, "Quote number is required"),
-  quote_item: z.string().min(1, "Quote item is required"),
-  total_amount: z.number().min(0, "Total amount must be non-negative")
-});
-
-export const updateQuoteSchema = z.object({
-  quote_number: z.string().min(1, "Quote number is required").optional(),
-  quote_item: z.string().min(1, "Quote item is required").optional(),
-  total_amount: z.number().min(0, "Total amount must be non-negative").optional()
 });
 
 // Type exports

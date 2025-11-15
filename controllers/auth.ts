@@ -20,8 +20,7 @@ export const register = async (req: Request, res: Response) => {
     // Validate body with Zod
     const bodyResult = registerSchema.safeParse(req.body);
     if (!bodyResult.success) {
-      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
-      return res.status(400).json({ message: errors });
+      return res.status(400).json({ message: "Please provide valid name, password and role" });
     }
 
     const { email, password, role }: RegisterInput = bodyResult.data;
@@ -47,8 +46,7 @@ export const login = async (req: Request, res: Response) => {
     // Validate body with Zod
     const bodyResult = loginSchema.safeParse(req.body);
     if (!bodyResult.success) {
-      const errors = bodyResult.error.issues.map(err => err.message).join(", ");
-      return res.status(400).json({ message: errors });
+      return res.status(400).json({ message: "Please provide valid email and password" });
     }
 
     const { email, password }: LoginInput = bodyResult.data;
